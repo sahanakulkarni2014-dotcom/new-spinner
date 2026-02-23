@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  spinner-app:
+    build: .
+    image: spinner-app:latest
+    container_name: spinner-app
+    ports:
+      - "80:80"
+    restart: unless-stopped

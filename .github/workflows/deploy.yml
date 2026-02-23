@@ -1,0 +1,39 @@
+name: 🚀 Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main   # Trigger on every push to main
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Checkout the code ──────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Write SSH key from GitHub Secret ──────────────
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key.pem
+          chmod 600 ~/.ssh/deploy_key.pem
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      # ── 3. Copy project files to EC2 ─────────────────────
+      - name: Copy files to EC2
+        run: |
+          scp -i ~/.ssh/deploy_key.pem -r \
+            index.html style.css script.js \
+            Dockerfile nginx.conf docker-compose.yml deploy.sh \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/spinner-app/
+
+      # ── 4. Run deploy.sh on EC2 ───────────────────────────
+      - name: Deploy on EC2
+        run: |
+          ssh -i ~/.ssh/deploy_key.pem \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "chmod +x ~/spinner-app/deploy.sh && bash ~/spinner-app/deploy.sh"

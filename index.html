@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud AI Code Spinner</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ── Decorative background blobs ── -->
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
+
+  <!-- ===================================================
+       PAGE 1 — SPINNER / LANDING
+  ==================================================== -->
+  <section id="page-spinner" class="page active">
+
+    <header class="navbar">
+      <div class="logo">
+        <span class="logo-icon">&#x2B21;</span>
+        <span class="logo-text">GLITCHCRAFT-<strong>Logic Trap</strong></span>
+      </div>
+      <nav class="nav-links">
+        <a href="#">Home</a>
+      </nav>
+    </header>
+
+    <div class="hero-text">
+      <h1>Spin to <span class="gradient-text">Unlock</span> the Challenge</h1>
+    </div>
+
+    <!-- Wheel area -->
+    <div class="spinner-wrapper">
+      <div class="spinner-glow-ring"></div>
+      <!-- Static pointer at top -->
+      <div class="spinner-pointer">&#9660;</div>
+      <!-- Canvas wheel — drawn by script.js -->
+      <canvas id="spinnerCanvas" width="680" height="680"></canvas>
+    </div>
+
+    <!-- Result badge — shown after wheel stops -->
+    <div id="result-badge" class="result-badge hidden">
+      <span class="result-label">You landed on</span>
+      <span id="result-number" class="result-number">&#8212;</span>
+    </div>
+
+    <!-- Spin trigger button -->
+    <button id="btn-spin" class="btn btn-primary" onclick="startSpin()">
+      <span>&#127744;</span> SPIN
+    </button>
+
+    <!-- Code display — shows the random code to the user -->
+    <div id="code-display" class="code-display-panel glass hidden">
+      <p class="code-display-label">🔐 Your Secret Code</p>
+      <div class="code-display-value" id="display-code-value">------</div>
+      <p class="code-display-hint">Enter this code below to unlock your question</p>
+    </div>
+
+    <!-- Code entry panel — shown after wheel stops -->
+    <div id="code-panel" class="code-panel glass hidden">
+      <p class="code-label">
+        Enter the secret code for <strong id="code-number-label">?</strong>
+      </p>
+      <div class="input-row">
+        <input id="code-input" class="code-input" type="text" placeholder="Type the code shown above&#8230;"
+          autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter') submitCode()" />
+        <button class="btn btn-secondary" onclick="submitCode()">Submit</button>
+      </div>
+      <p id="code-error" class="code-error hidden">&#9888; Invalid Code. Try Again.</p>
+    </div>
+
+    <footer class="page-footer">Powered by Cloud &amp; AI Innovation &#10022; 2025</footer>
+  </section>
+
+
+  <!-- ===================================================
+       PAGE 2 — QUESTION CARD
+  ==================================================== -->
+  <section id="page-question" class="page">
+    <div class="question-screen">
+
+      <div class="q-badge glass">
+        <span>&#129504;</span>
+        <span>CODE &amp; Debug Challenge</span>
+      </div>
+
+      <div id="question-card" class="question-card glass">
+        <div class="q-header">
+          <span class="q-tag">Question</span>
+          <span id="q-number-tag" class="q-number-tag">#&#8211;</span>
+        </div>
+        <div id="question-text" class="question-text">Loading question&#8230;</div>
+        <div class="q-divider"></div>
+        <p class="q-hint">Think carefully &#8212; every detail counts.</p>
+      </div>
+
+
+    </div>
+  </section>
+
+  <!-- Links to external script.js -->
+  <script src="script.js"></script>
+</body>
+
+</html>

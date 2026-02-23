@@ -1,0 +1,7 @@
+# Ignore everything that doesn't need to go into the image
+*.md
+*.log
+*.env
+.git
+.gitignore
+docker-compose.yml
