@@ -1,0 +1,15 @@
+# SSH Keys — NEVER commit these
+*.pem
+*.key
+*.ppk
+
+# Env files
+.env
+.env.*
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
