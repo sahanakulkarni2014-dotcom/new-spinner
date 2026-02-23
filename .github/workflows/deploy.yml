@@ -1,4 +1,4 @@
-name: 🚀 Deploy to EC2
+name: Deploy to EC2
 
 on:
   push:
@@ -7,69 +7,27 @@ on:
 
 jobs:
   deploy:
-    name: Build & Deploy
+    name: Build and Deploy
     runs-on: ubuntu-latest
 
-    env:
-      EC2_HOST: ${{ secrets.EC2_HOST }}
-      EC2_USER: ${{ secrets.EC2_USER }}
-
     steps:
-      # ── 1. Checkout the code ──────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ── 2. Write SSH key ──────────────────────────────────
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key.pem
           chmod 600 ~/.ssh/deploy_key.pem
 
-      # ── 3. Install Docker on EC2 (if not already present) ─
-      - name: Install Docker on EC2
+      - name: Create app directory on EC2
         run: |
-          ssh -i ~/.ssh/deploy_key.pem \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            ${EC2_USER}@${EC2_HOST} << 'ENDSSH'
-              if ! command -v docker &> /dev/null; then
-                echo "🐳 Docker not found — installing..."
-                # Works for Amazon Linux 2023 and Amazon Linux 2
-                sudo yum update -y 2>/dev/null || sudo apt-get update -y
-                sudo yum install -y docker 2>/dev/null || sudo apt-get install -y docker.io
-                sudo systemctl enable docker
-                sudo systemctl start docker
-                sudo usermod -aG docker $USER
-              else
-                echo "✅ Docker already installed: $(docker --version)"
-              fi
-              # Ensure docker compose plugin is available
-              if ! docker compose version &> /dev/null; then
-                sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
-                  -o /usr/local/lib/docker/cli-plugins/docker-compose 2>/dev/null || \
-                sudo curl -SL https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 \
-                  -o /usr/local/bin/docker-compose
-                sudo chmod +x /usr/local/bin/docker-compose 2>/dev/null || true
-              fi
-              mkdir -p ~/spinner-app
-ENDSSH
+          ssh -i ~/.ssh/deploy_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p ~/spinner-app"
 
-      # ── 4. Copy project files to EC2 ─────────────────────
       - name: Copy files to EC2
         run: |
-          scp -i ~/.ssh/deploy_key.pem \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            index.html style.css script.js \
-            Dockerfile nginx.conf docker-compose.yml deploy.sh \
-            ${EC2_USER}@${EC2_HOST}:~/spinner-app/
+          scp -i ~/.ssh/deploy_key.pem -o StrictHostKeyChecking=no index.html style.css script.js Dockerfile nginx.conf docker-compose.yml deploy.sh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/spinner-app/
 
-      # ── 5. Run deploy.sh on EC2 ───────────────────────────
       - name: Deploy on EC2
         run: |
-          ssh -i ~/.ssh/deploy_key.pem \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            ${EC2_USER}@${EC2_HOST} \
-            "chmod +x ~/spinner-app/deploy.sh && sudo bash ~/spinner-app/deploy.sh"
+          ssh -i ~/.ssh/deploy_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "chmod +x ~/spinner-app/deploy.sh && cd ~/spinner-app && sudo bash deploy.sh"
